@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import AnimatedCard from '@/components/AnimatedCard';
+import FeedbackWidget from '@/components/FeedbackWidget';
 import Navigation from '@/components/Navigation';
 import PageTransition from '@/components/PageTransition';
 import { useTheme } from '@/contexts/ThemeContext';
@@ -186,32 +187,37 @@ export default function Recommendations() {
           {/* Recommendations List */}
           <div className="space-y-4">
             {recommendations.map((rec, index) => (
-              <AnimatedCard
+              <div
                 key={rec.id}
-                variant={getPriorityVariant(rec.priority)}
-                index={index + 1}
+                className="observation-target rounded-3xl"
+                data-observation-label={`recommendation-${rec.priority}`}
               >
-              <div className="flex items-start gap-3">
-                <span className="text-2xl">{rec.icon}</span>
-                <div className="flex-1">
-                  <div className="flex items-center justify-between mb-1">
-                    <h3 className="font-semibold">{rec.title}</h3>
-                    <span className={`text-xs font-medium ${getPriorityColor(rec.priority)}`}>
-                      {rec.priority.toUpperCase()}
-                    </span>
+                <AnimatedCard variant={getPriorityVariant(rec.priority)} index={index + 1}>
+                  <div className="flex flex-col gap-3">
+                    <div className="flex items-start gap-3">
+                      <span className="text-2xl">{rec.icon}</span>
+                      <div className="flex-1">
+                        <div className="mb-1 flex items-center justify-between">
+                          <h3 className="font-semibold">{rec.title}</h3>
+                          <span className={`text-xs font-medium ${getPriorityColor(rec.priority)}`}>
+                            {rec.priority.toUpperCase()}
+                          </span>
+                        </div>
+                        <p
+                          className={`text-sm ${
+                            isInMotion
+                              ? 'text-gray-700 dark:text-gray-300'
+                              : 'text-gray-600 dark:text-gray-400'
+                          }`}
+                        >
+                          {isInMotion ? `${rec.description.substring(0, 80)}...` : rec.description}
+                        </p>
+                      </div>
+                    </div>
+                    <FeedbackWidget entityId={rec.id} scope="recommendations" />
                   </div>
-                  <p
-                    className={`text-sm ${
-                      isInMotion
-                        ? 'text-gray-700 dark:text-gray-300'
-                        : 'text-gray-600 dark:text-gray-400'
-                    }`}
-                  >
-                    {isInMotion ? rec.description.substring(0, 80) + '...' : rec.description}
-                  </p>
-                </div>
+                </AnimatedCard>
               </div>
-              </AnimatedCard>
             ))}
           </div>
 

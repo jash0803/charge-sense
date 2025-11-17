@@ -55,13 +55,22 @@ function Tree({ index, isCut }: { index: number; isCut: boolean }) {
 export default function TreeImpactVisualization({ co2Emission }: TreeImpactVisualizationProps) {
   const [treesDestroyed, setTreesDestroyed] = useState(0);
   const [showAnimation, setShowAnimation] = useState(false);
+  const [showImpact, setShowImpact] = useState(true);
+  const [previewMode, setPreviewMode] = useState(false);
+  const [previewIndex, setPreviewIndex] = useState(1);
   const totalTrees = 20; // Show a forest of 20 trees
-  const treesToCut = Math.min(calculateTreesDestroyed(co2Emission), totalTrees);
+  const demoScenarios = [
+    { label: 'Forest Safe', co2: 0 },
+    { label: 'Mild Impact', co2: 120 },
+    { label: 'Severe Impact', co2: 300 },
+  ];
+  const activeScenario = previewMode ? demoScenarios[previewIndex] : { label: 'Live Impact', co2: co2Emission };
+  const treesToCut = Math.min(calculateTreesDestroyed(activeScenario.co2), totalTrees);
 
   useEffect(() => {
-    if (co2Emission > 0) {
+    setTreesDestroyed(0);
+    if (treesToCut > 0) {
       setShowAnimation(true);
-      // Animate trees being cut progressively
       const interval = setInterval(() => {
         setTreesDestroyed(prev => {
           if (prev < treesToCut) {
@@ -70,28 +79,12 @@ export default function TreeImpactVisualization({ co2Emission }: TreeImpactVisua
           return prev;
         });
       }, 200);
-      
-      return () => clearInterval(interval);
-    }
-  }, [co2Emission, treesToCut]);
 
-  if (treesToCut === 0) {
-    return (
-      <div className="text-center py-8">
-        <motion.div
-          initial={{ scale: 0 }}
-          animate={{ scale: 1 }}
-          transition={{ type: "spring", stiffness: 200 }}
-          className="text-6xl mb-4"
-        >
-          🌳
-        </motion.div>
-        <p className="text-green-600 dark:text-green-400 font-semibold">
-          Forest is safe! Keep it up!
-        </p>
-      </div>
-    );
-  }
+      return () => clearInterval(interval);
+    } else {
+      setShowAnimation(false);
+    }
+  }, [treesToCut]);
 
   return (
     <div className="py-6">
@@ -104,15 +97,50 @@ export default function TreeImpactVisualization({ co2Emission }: TreeImpactVisua
           🌲 Forest Impact
         </h3>
         <p className="text-sm text-gray-600 dark:text-gray-400">
-          {treesDestroyed} of {treesToCut} trees affected by today's emissions
+          {showImpact ? treesDestroyed : 0} of {treesToCut} trees affected{' '}
+          {previewMode ? `(${activeScenario.label} demo)` : "by today's emissions"}
         </p>
       </motion.div>
+      {!previewMode && treesToCut === 0 && (
+        <motion.p
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="text-center text-green-600 dark:text-green-400 font-semibold mb-4"
+        >
+          Forest is safe right now! Preview examples to see other scenarios.
+        </motion.p>
+      )}
 
       {/* Forest Grid */}
       <div className="relative">
+        <div className="absolute top-3 left-3 flex gap-2 z-20">
+          <button
+            onClick={() => {
+              setPreviewMode((prev) => !prev);
+              setPreviewIndex(1);
+            }}
+            className="px-3 py-1.5 text-xs font-semibold rounded-full bg-white/90 dark:bg-gray-900/80 border border-green-200 dark:border-green-700 shadow-sm transition"
+          >
+            {previewMode ? 'Show Live Impact' : 'Preview Examples'}
+          </button>
+          {previewMode && (
+            <button
+              onClick={() => setPreviewIndex((prev) => (prev + 1) % demoScenarios.length)}
+              className="px-3 py-1.5 text-xs font-semibold rounded-full bg-green-100 dark:bg-green-900/60 border border-green-400 dark:border-green-600 shadow-sm transition text-green-900 dark:text-green-200"
+            >
+              Next ({demoScenarios[(previewIndex + 1) % demoScenarios.length].label})
+            </button>
+          )}
+        </div>
+        <button
+          onClick={() => setShowImpact((prev) => !prev)}
+          className="absolute top-3 right-3 z-20 px-3 py-1.5 text-xs font-semibold rounded-full bg-white/90 dark:bg-gray-900/80 border border-green-200 dark:border-green-700 shadow-sm transition"
+        >
+          {showImpact ? 'Protect Forest' : 'Show Impact'}
+        </button>
         <div className="grid grid-cols-5 gap-4 p-4 bg-gradient-to-b from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 rounded-xl border-2 border-green-200 dark:border-green-800">
           {Array.from({ length: totalTrees }).map((_, index) => {
-            const isCut = index < treesDestroyed;
+            const isCut = showImpact && index < treesDestroyed;
             return (
               <div key={index} className="relative">
                 <Tree index={index} isCut={isCut} />
@@ -149,7 +177,7 @@ export default function TreeImpactVisualization({ co2Emission }: TreeImpactVisua
 
       {/* Impact Message */}
       <AnimatePresence>
-        {treesDestroyed > 0 && (
+        {showImpact && treesDestroyed > 0 && (
           <motion.div
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}

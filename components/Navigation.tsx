@@ -3,7 +3,8 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { Home, Battery, Activity, Leaf, Lightbulb, Trophy, Target, Users, Settings } from 'lucide-react';
+import { Home, Leaf, Trophy, Target, Users, Settings } from 'lucide-react';
+import { useAccessibility } from '@/contexts/AccessibilityContext';
 
 const navItems = [
   { href: '/', icon: Home, label: 'Dashboard' },
@@ -16,57 +17,73 @@ const navItems = [
 
 export default function Navigation() {
   const pathname = usePathname();
+  const { settings } = useAccessibility();
+  const disableMotion = settings.reduceMotion || settings.screenReaderMode;
 
   return (
-    <motion.nav
-      initial={{ y: 100, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-      transition={{ duration: 0.4, ease: [0.25, 0.1, 0.25, 1] }}
-      className="fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 z-50"
+    <motion.div
+      initial={disableMotion ? false : { y: 100, opacity: 0 }}
+      animate={disableMotion ? undefined : { y: 0, opacity: 1 }}
+      transition={disableMotion ? undefined : { duration: 0.4, ease: [0.25, 0.1, 0.25, 1] }}
+      className="fixed bottom-0 left-0 right-0 z-50 pb-5 px-4"
     >
-      <div className="flex justify-around items-center h-16 max-w-md mx-auto">
-        {navItems.map((item, index) => {
-          const Icon = item.icon;
-          const isActive = pathname === item.href;
-          
-          return (
-            <motion.div
-              key={item.href}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.05, duration: 0.3 }}
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              <Link
-                href={item.href}
-                className={`flex flex-col items-center justify-center gap-1 px-4 py-2 transition-colors ${
-                  isActive
-                    ? 'text-green-600 dark:text-green-400'
-                    : 'text-gray-500 dark:text-gray-400'
-                }`}
+      <nav
+        className="max-w-md mx-auto bg-white/95 dark:bg-gray-900/90 border border-gray-200 dark:border-gray-700 rounded-3xl shadow-xl backdrop-blur-md px-4 py-2"
+        role="navigation"
+        aria-label="Primary"
+      >
+        <div className="flex items-center justify-between gap-2">
+          {navItems.map((item, index) => {
+            const Icon = item.icon;
+            const isActive = pathname === item.href;
+
+            return (
+              <motion.div
+                key={item.href}
+                initial={disableMotion ? false : { opacity: 0, y: 20 }}
+                animate={disableMotion ? undefined : { opacity: 1, y: 0 }}
+                transition={
+                  disableMotion ? undefined : { delay: index * 0.05, duration: 0.3 }
+                }
+                whileHover={disableMotion ? undefined : { scale: 1.05 }}
+                whileTap={disableMotion ? undefined : { scale: 0.95 }}
+                className="flex-1"
               >
-                <motion.div
-                  animate={isActive ? { scale: 1.1 } : { scale: 1 }}
-                  transition={{ duration: 0.2 }}
+                <Link
+                  href={item.href}
+                  aria-label={item.label}
+                  aria-current={isActive ? 'page' : undefined}
+                  className={`relative flex flex-col items-center justify-center gap-1 py-1 text-xs font-medium transition-all ${
+                    isActive
+                      ? 'text-green-600 dark:text-green-400'
+                      : 'text-gray-500 dark:text-gray-400'
+                  }`}
                 >
-                  <Icon size={20} />
-                </motion.div>
-                <span className="text-xs">{item.label}</span>
-                {isActive && (
                   <motion.div
-                    layoutId="activeIndicator"
-                    className="absolute bottom-0 left-0 right-0 h-1 bg-green-600 dark:bg-green-400 rounded-t-full"
-                    initial={false}
-                    transition={{ type: "spring", stiffness: 500, damping: 30 }}
-                  />
-                )}
-              </Link>
-            </motion.div>
-          );
-        })}
-      </div>
-    </motion.nav>
+                    className={`p-2 rounded-2xl transition-all ${
+                      isActive
+                        ? 'bg-green-50 dark:bg-green-900/40 text-green-600 dark:text-green-400 shadow-sm'
+                        : 'bg-transparent'
+                    }`}
+                    animate={
+                      disableMotion
+                        ? undefined
+                        : isActive
+                        ? { scale: 1.05 }
+                        : { scale: 1 }
+                    }
+                    transition={disableMotion ? undefined : { duration: 0.2 }}
+                  >
+                    <Icon size={20} aria-hidden="true" focusable={false} />
+                  </motion.div>
+                  <span>{item.label}</span>
+                </Link>
+              </motion.div>
+            );
+          })}
+        </div>
+      </nav>
+    </motion.div>
   );
 }
 

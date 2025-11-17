@@ -8,7 +8,6 @@ import EnvironmentBar from '@/components/EnvironmentBar';
 import Navigation from '@/components/Navigation';
 import ThemeSwitcher from '@/components/ThemeSwitcher';
 import PageTransition from '@/components/PageTransition';
-import ChargingAnimation from '@/components/ChargingAnimation';
 import ChargingPollutionAnimation from '@/components/ChargingPollutionAnimation';
 import TreeImpactVisualization from '@/components/TreeImpactVisualization';
 import StreakTracker from '@/components/StreakTracker';
@@ -285,7 +284,7 @@ export default function Dashboard() {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
-                <AnimatedCard variant="normal" className="text-center py-3 cursor-pointer">
+                <AnimatedCard variant="normal" className="text-center py-3 cursor-pointer text-gray-900 dark:text-gray-100">
                   <div className="text-2xl mb-1">🏆</div>
                   <div className="text-xs font-semibold">Achievements</div>
                 </AnimatedCard>
@@ -299,7 +298,7 @@ export default function Dashboard() {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
-                <AnimatedCard variant="normal" className="text-center py-3 cursor-pointer">
+                <AnimatedCard variant="normal" className="text-center py-3 cursor-pointer text-gray-900 dark:text-gray-100">
                   <div className="text-2xl mb-1">🎯</div>
                   <div className="text-xs font-semibold">Goals</div>
                 </AnimatedCard>
@@ -313,7 +312,7 @@ export default function Dashboard() {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
-                <AnimatedCard variant="normal" className="text-center py-3 cursor-pointer">
+                <AnimatedCard variant="normal" className="text-center py-3 cursor-pointer text-gray-900 dark:text-gray-100">
                   <div className="text-2xl mb-1">👥</div>
                   <div className="text-xs font-semibold">Leaderboard</div>
                 </AnimatedCard>
@@ -337,13 +336,13 @@ export default function Dashboard() {
                 whileTap={{ scale: 0.98 }}
               >
                 <Link href={button.href}>
-                  <AnimatedCard variant={button.variant} className="cursor-pointer">
+                  <AnimatedCard variant={button.variant} className="cursor-pointer text-gray-900 dark:text-gray-100">
                     <motion.div
                       className="flex items-center justify-between"
                       whileHover={{ x: 5 }}
                     >
                       <span className="font-semibold">{button.label}</span>
-                      <ArrowRight size={20} />
+                      <ArrowRight size={20} className="text-gray-500 dark:text-gray-300" />
                     </motion.div>
                   </AnimatedCard>
                 </Link>
@@ -352,10 +351,6 @@ export default function Dashboard() {
           </div>
         </div>
 
-        <ChargingAnimation 
-          isCharging={isCharging} 
-          batteryLevel={environment.batteryLevel} 
-        />
         <ThemeSwitcher />
         <Navigation />
       </div>
